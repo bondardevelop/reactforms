@@ -9,20 +9,66 @@ export default class App extends React.Component {
       username: "",
       password: "",
       repeatPassword: "",
-      country: ""
+      country: "",
+      gender: "male",
+      agree: true,
+      avatar: "",
+      errors: {
+        username: false,
+        password: false,
+        repeatPassword: false
+      }
     };
   }
 
   onSubmit = e => {
     e.preventDefault();
-    console.log(this.username.value, this.password.value);
-    console.log("state", this.state);
+    const errors = {};
+
+    if (this.state.username.length < 5) {
+      errors.username = "Must be 5 character or more";
+    }
+    if (!this.state.password.length) {
+      errors.password = "Write password";
+    }
+    if (this.state.password !== this.state.repeatPassword) {
+      errors.repeatPassword = "Not the same pasword";
+    }
+
+    console.log(Object.keys(errors));
+    if (Object.keys(errors).length > 0) {
+      this.setState({
+        errors: errors
+      });
+    } else {
+      this.setState({
+        errors: {}
+      });
+      console.log("state", this.state);
+    }
   };
 
   onChange = e => {
     this.setState({
       [e.target.name]: e.target.value
     });
+  };
+
+  onChangeCheckbox = e => {
+    this.setState({
+      [e.target.name]: e.target.checked
+    });
+  };
+
+  onChangeAvatar = e => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      console.log("result", e.target.result);
+      this.setState({
+        avatar: e.target.result
+      });
+    };
+    reader.readAsDataURL(e.target.files[0]);
   };
 
   getOptionsItems = items => {
@@ -34,7 +80,6 @@ export default class App extends React.Component {
   };
 
   render() {
-    console.log("getCountries", Countries, this.getOptionsItems);
     return (
       <div className="form-container card">
         <form className="form card-body">
@@ -45,10 +90,14 @@ export default class App extends React.Component {
               className="form-control"
               placeholder="Enter username"
               name="username"
-              ref={node => (this.username = node)}
               value={this.state.username}
               onChange={this.onChange}
             />
+            {this.state.errors.username ? (
+              <div className="invalid-feedback">
+                {this.state.errors.username}
+              </div>
+            ) : null}
           </div>
           <div className="form-group">
             <label>Password</label>
@@ -61,6 +110,11 @@ export default class App extends React.Component {
               value={this.state.password}
               onChange={this.onChange}
             />
+            {this.state.errors.password ? (
+              <div className="invalid-feedback">
+                {this.state.errors.password}
+              </div>
+            ) : null}
           </div>
           <div className="form-group">
             <label>Repeat password</label>
@@ -73,6 +127,11 @@ export default class App extends React.Component {
               value={this.state.repeatPassword}
               onChange={this.onChange}
             />
+            {this.state.errors.repeatPassword ? (
+              <div className="invalid-feedback">
+                {this.state.errors.repeatPassword}
+              </div>
+            ) : null}
           </div>
           <div className="form-group">
             <label htmlFor="exampleFormControlSelect1">Country</label>
@@ -85,6 +144,61 @@ export default class App extends React.Component {
             >
               {this.getOptionsItems(Countries)}
             </select>
+          </div>
+          <fieldset className="form-group">
+            <div>Gender</div>
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                type="radio"
+                id="male"
+                name="gender"
+                value="male"
+                checked={this.state.gender === "male"}
+                onChange={this.onChange}
+              />
+              <label className="form-check-label" htmlFor="male">
+                Male
+              </label>
+            </div>
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                type="radio"
+                id="female"
+                name="gender"
+                value="female"
+                checked={this.state.gender === "female"}
+                onChange={this.onChange}
+              />
+              <label className="form-check-label" htmlFor="female">
+                Female
+              </label>
+            </div>
+          </fieldset>
+          <div className="form-group">
+            <label htmlFor="avatar">Avatar</label>
+            <input
+              type="file"
+              className="form-control-file"
+              id="avatar"
+              name="avatar"
+              onChange={this.onChangeAvatar}
+            />
+          </div>
+          <div className="form-check mb-2">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id="agree"
+              name="agree"
+              value={this.state.agree}
+              checked={this.state.agree}
+              onChange={this.onChangeCheckbox}
+            />
+            <label className="form-check-label" htmlFor="agree">
+              Confirm the processing of data
+            </label>
           </div>
           <button
             type="submit"
